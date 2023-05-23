@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="index.css">
+    <title>Product Management</title>
+</head>
+<body>
+<h1>Product Management</h1>
+<p>Track your products Online.</p>
+<div class="main-container">
+    <div class="left">
+        <div class="left-contents">
+            <button id="getAllProductsBtn">Get all products</button>
+            <br>
+            <hr>
+            <input type="text" name="name-of-product" id="name-of-product" placeholder="Enter name of product">
+            <br>
+            <button id="getProductBtn">Get product by name</button>
+            <br>
+            <hr>
+            <br>
+            <input type="text" name="name-of-product-adding" placeholder="Enter name of product">
+            <br>
+            <input type="text" name="type-of-product-adding" placeholder="Enter type of product">
+            <br>
+            <input type="text" name="place-of-product-adding" placeholder="Enter place of product">
+            <br>
+            <input type="number" name="warranty-of-product-adding" placeholder="Enter warranty of product">
+            <br>
+            <button id="addProductBtn">Add a product</button>
+            <hr>
+        </div>
+    </div>
+    <div class="right">
+        <div class="right-contents">
+            <div class="table-container">
+            <table id="productTable">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Place</th>
+                    <th>Warranty</th>
+                </tr>
+                </thead>
+                <tbody>
+                <!-- Product data will be inserted here dynamically -->
+                </tbody>
+            </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+    $("#getAllProductsBtn").click(function() {
+        $.get("/products", function(data) {
+            populateProductTable(data);
+        });
+    });
+
+    function populateProductTable(products) {
+        var tableBody = $("#productTable tbody");
+        tableBody.empty();
+
+        for (var i = 0; i < products.length; i++) {
+            var product = products[i];
+            var row = $("<tr>");
+            row.append($("<td>").text(product.name));
+            row.append($("<td>").text(product.type));
+            row.append($("<td>").text(product.place));
+            row.append($("<td>").text(product.warranty));
+            tableBody.append(row);
+        }
+    }
+});
+    $("#addProductBtn").click(function() {
+        var name = $("input[name='name-of-product-adding']").val();
+        var place = $("input[name='place-of-product-adding']").val();
+        var type = $("input[name='type-of-product-adding']").val();
+        var warranty = $("input[name='warranty-of-product-adding']").val();
+
+        var product = {
+            name: name,
+            place: place,
+            type: type,
+            warranty: warranty
+        };
+
+        $.ajax({
+            url: "/product",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify(product),
+            success: function() {
+                alert("Product added successfully");
+                // You can perform additional actions here after the product is added
+            },
+            error: function() {
+                alert("Error adding product");
+                // Handle the error case here
+            }
+        });
+    });
+    $(document).ready(function() {
+        $("#getAllProductsBtn").click(function() {
+            $.get("/products", function(data) {
+                populateProductTable(data);
+            });
+        });
+
+        $("#getProductBtn").click(function() {
+            var productName = $("#name-of-product").val();
+            $.get("/product/" + productName, function(data) {
+                populateProductTable([data]);
+            });
+        });
+
+        function populateProductTable(products) {
+            var tableBody = $("#productTable tbody");
+            tableBody.empty();
+
+            for (var i = 0; i < products.length; i++) {
+                var product = products[i];
+                var row = $("<tr>");
+                row.append($("<td>").text(product.name));
+                row.append($("<td>").text(product.type));
+                row.append($("<td>").text(product.place));
+                row.append($("<td>").text(product.warranty));
+                tableBody.append(row);
+            }
+        }
+    });
+</script>
+</body>
+</html>
